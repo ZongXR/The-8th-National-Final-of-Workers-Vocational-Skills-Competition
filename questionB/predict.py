@@ -3,14 +3,16 @@ import os
 from modelscope import AutoModelForCausalLM, AutoTokenizer
 import torch
 from datasets import load_dataset
-from config import DATA_SET
+from peft import PeftModel
+from config import DATA_SET, MODEL_PATH
 
 
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 lora_path = "%s/saved_model/%s" % (cur_dir, DATA_SET)
 
 # 加载模型
-model = AutoModelForCausalLM.from_pretrained(lora_path, device_map="auto",torch_dtype=torch.bfloat16)
+model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, device_map="auto",torch_dtype=torch.bfloat16)
+model = PeftModel.from_pretrained(model, lora_path)
 # 加载tokenizer
 tokenizer = AutoTokenizer.from_pretrained(lora_path)
 tokenizer.chat_template = """

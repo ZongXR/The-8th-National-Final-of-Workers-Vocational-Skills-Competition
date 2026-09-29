@@ -3,7 +3,8 @@ import os
 from datasets import load_dataset
 import torch
 from transformers import AutoTokenizer, GemmaForSequenceClassification
-from config import DATA_SET
+from peft import PeftModel
+from config import DATA_SET, MODEL_PATH
 
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 lora_path = "%s/saved_model/%s" % (cur_dir, DATA_SET)
@@ -11,7 +12,8 @@ lora_path = "%s/saved_model/%s" % (cur_dir, DATA_SET)
 
 def val(label_file):
     test_data = load_dataset("json", data_files="%s/pre_data/%s/%s_dev.json" % (cur_dir, DATA_SET, DATA_SET), split="train")
-    model = GemmaForSequenceClassification.from_pretrained(lora_path).to("cuda:0")
+    model = GemmaForSequenceClassification.from_pretrained(MODEL_PATH).to("cuda:0")
+    model = PeftModel.from_pretrained(model, lora_path)
     tokenizer = AutoTokenizer.from_pretrained(lora_path)
 
     pre_res = [0, 0]
